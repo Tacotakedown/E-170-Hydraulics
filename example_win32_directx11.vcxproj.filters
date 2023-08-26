@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{0587d7a3-f2ce-4d56-b84f-a0005d3bfce6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources">
+      <UniqueIdentifier>{08e36723-ce4f-4cff-9662-c40801cf1acf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hydraulics">
+      <UniqueIdentifier>{622393a9-4e5a-4d25-a678-5c5b04ea026d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="globals">
+      <UniqueIdentifier>{3c01a720-e212-44ff-ae9a-fad16dd6aa4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hydraulics\Hydraulic Fluid">
+      <UniqueIdentifier>{f4c15ec3-ddd5-4d0b-8d19-9faab6e9582b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hydraulics\Hydraulic Line">
+      <UniqueIdentifier>{e13e61b2-497c-4eeb-ac21-ebfdf931e319}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hydraulics\Hydraulic Pump">
+      <UniqueIdentifier>{40d82af0-ec7e-4ce1-9252-d83572c253a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hydraulics\Hydraulic Reservoir">
+      <UniqueIdentifier>{fb3e9f3b-b4d6-45f7-b75a-aae53c353ae8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tools">
+      <UniqueIdentifier>{7f18fe14-d2b5-4002-8194-6fdbe64088a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{701d1ffe-602c-4a29-8ee6-77506e2a9973}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dependencies\imgui\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\imgui\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\imgui\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\imgui\imstb_rectpack.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\imgui\imstb_textedit.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\imgui\imstb_truetype.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="globals.hpp">
+      <Filter>globals</Filter>
+    </ClInclude>
+    <ClInclude Include="hydraulicFluid.h">
+      <Filter>Hydraulics\Hydraulic Fluid</Filter>
+    </ClInclude>
+    <ClInclude Include="HydraulicLine.h">
+      <Filter>Hydraulics\Hydraulic Line</Filter>
+    </ClInclude>
+    <ClInclude Include="HydraulicPump.h">
+      <Filter>Hydraulics\Hydraulic Pump</Filter>
+    </ClInclude>
+    <ClInclude Include="hydraulicRes.h">
+      <Filter>Hydraulics\Hydraulic Reservoir</Filter>
+    </ClInclude>
+    <ClInclude Include="system.h">
+      <Filter>Hydraulics</Filter>
+    </ClInclude>
+    <ClInclude Include="tools.h">
+      <Filter>tools</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\imgui\imgui_impl_win32.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\imgui\imgui_impl_dx11.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\imgui\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\imgui\imgui_demo.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\imgui\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\imgui\imgui_tables.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\imgui\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="system.cpp">
+      <Filter>Hydraulics</Filter>
+    </ClCompile>
+    <ClCompile Include="HydraulicLine.cpp">
+      <Filter>Hydraulics\Hydraulic Line</Filter>
+    </ClCompile>
+    <ClCompile Include="HydraulicPump.cpp">
+      <Filter>Hydraulics\Hydraulic Pump</Filter>
+    </ClCompile>
+    <ClCompile Include="hydraulicRes.cpp">
+      <Filter>Hydraulics\Hydraulic Reservoir</Filter>
+    </ClCompile>
+    <ClCompile Include="hydraulicFluid.cpp">
+      <Filter>Hydraulics\Hydraulic Fluid</Filter>
+    </ClCompile>
+    <ClCompile Include="tools.cpp">
+      <Filter>tools</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\imgui\imgui_impl_win32.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\imgui\imgui_impl_dx11.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
