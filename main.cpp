@@ -41,7 +41,7 @@ int main(int, char**)
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    io.Fonts->AddFontFromFileTTF("C:\\titillium.ttf", 26.0f);
+    io.Fonts->AddFontFromFileTTF("C:\\titillium.ttf", 32.0f);
     ImGuiStyle& style = ImGui::GetStyle();
     style.WindowPadding = ImVec2(9.0f, 9.0f);
     style.FramePadding = ImVec2(9.0f, 7.0f);
@@ -158,7 +158,7 @@ int main(int, char**)
         ImGui::Begin("Real Niggas Debug Menu",nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove| ImGuiWindowFlags_NoCollapse| ImGuiWindowFlags_AlwaysAutoResize);
 
 
-        ImGui::BeginChild("##Left", ImVec2(ImGui::GetContentRegionAvail().x / 3.0f, ImGui::GetContentRegionAvail().y));
+        ImGui::BeginChild("##Left", ImVec2(ImGui::GetContentRegionAvail().x / 3.0f, ImGui::GetContentRegionAvail().y / 1.1f));
         ImGui::Text("PressureL: %i", pressure);
 
         ImGui::PushStyleColor(ImGuiCol_Text, monkey.OutboardBrakes ? ImVec4(0, 255, 0, 255) : ImVec4(255, 0, 0, 255));
@@ -193,7 +193,7 @@ int main(int, char**)
         ImGui::SameLine();
 
 
-        ImGui::BeginChild("##Center", ImVec2(ImGui::GetContentRegionAvail().x / 2.0f, ImGui::GetContentRegionAvail().y));
+        ImGui::BeginChild("##Center", ImVec2(ImGui::GetContentRegionAvail().x / 2.0f, ImGui::GetContentRegionAvail().y/1.1f));
         ImGui::Text("PressureC: %i", pressure);
         ImGui::EndChild();
         ImGui::SameLine();
@@ -203,9 +203,13 @@ int main(int, char**)
         ImGui::SameLine();
 
 
-        ImGui::BeginChild("##Right", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
+        ImGui::BeginChild("##Right", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y / 1.1f));
         ImGui::Text("PressureR: %i", pressure);
         ImGui::Checkbox("ElecPump 1", &ElecPump1);
+     
+        ImGui::EndChild();
+        ImGui::Separator();
+        ImGui::BeginChild("##Bottom", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
         ImGui::Text("FPS: %.1f", double(ImGui::GetIO().Framerate));
         ImGui::EndChild();
         
