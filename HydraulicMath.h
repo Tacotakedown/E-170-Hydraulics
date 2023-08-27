@@ -22,7 +22,7 @@ public:
     class Direction //will determine direction of flow
     {
     public:
-    enum DirectionEnum {IN, OUT};
+    enum DirectionEnum {IN=0, OUT=1};
     };
 
 };
