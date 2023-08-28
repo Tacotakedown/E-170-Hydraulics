@@ -1,30 +1,32 @@
-
-
 class HydraulicMath
-{
-
-    
+{   
 public:
     class PascalsLaw // will determine pressure, force, and area
     {
     public:
-    double getPressure(double force, double area);
-    double getForce(double pressure, double area);
-    double getArea(double pressure, double force);
+    static double getPressure(double force, double area);
+    static double getForce(double pressure, double area);
+    static double getArea(double pressure, double force);
     };
     class FlowRate //will determine flow rate, volume, and time to extend cylinder
     {
     public:
-    double getFlowRate(double volume, double time);
-    double getVolume(double flowRate, double time);
-    double getTime(double flowRate, double volume);
+    static double getFlowRate(double volume, double time);
+    static double getVolume(double flowRate, double time);
+    static double getTime(double flowRate, double volume);
     };
     class Direction //will determine direction of flow
     {
     public:
     enum DirectionEnum {IN=0, OUT=1};
     };
-
+    class Cylinder //will determine cylinder volume
+    {
+    public:
+    static double getCylinderVolume(double radius, double length);
+    static double getCylinderLength(double radius, double volume);
+    static double getArea(double radius);
+    };
 };
 
 
