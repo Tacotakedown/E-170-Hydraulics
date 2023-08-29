@@ -1,7 +1,11 @@
 #pragma once
+#include <cstdlib>
 class HydraulicPump
 {
 private:
-	int flowRate(int RPM, int displacement);
+	
+	double flowRate(double RPM);
+public:
+double PumpWithFlowLimiter(double pressure,double RPM);
 };
 

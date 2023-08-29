@@ -1,6 +1,19 @@
 #include "globals.hpp"
 #include "system.h"
 
+/*
+to do:
+find size of actuators and cylinders
+find length of lines
+find size of lines
+
+Key items:
+find out how fast fluid is flowing through the system
+find the volume of the system
+from there we can get the time it takes for each induvudual actuator to extend and retract
+*/
+
+
 system1 System::System1(int press, bool ElecPump1, bool EngPump1, bool ShutoffValve, bool PriorityValve, bool PTUValve, int FluidLevel)
 {
 	system1Values values;
