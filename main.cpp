@@ -22,13 +22,18 @@ void CreateRenderTarget();
 void CleanupRenderTarget();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+/*
+globals to be acessed outside of simulation loop for render purposes
+*/
+int pressure = 0;
+bool simRunning = false;
+
 void simulation()
 {
     const double simulationRate = 60.0;
     const std::chrono::duration<double> timeStep(1.0 / simulationRate);
-    int pressure = 0;
-    bool done = false;
-    while (!done)
+ 
+    while (!simRunning)
     {
         system1Values monkey = System::System1(pressure, true, true, true, true, 100);
         pressure = monkey.pressure;
@@ -145,7 +150,6 @@ int main(int, char**)
     ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
 
     ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
-    int pressure = 0;
     bool done = false;
 
 
