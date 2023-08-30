@@ -7,6 +7,8 @@
 #include "system.h"
 #include "tools.h"
 #include <string>
+#include <thread>
+#include <chrono>
 
 static ID3D11Device*            g_pd3dDevice = nullptr;
 static ID3D11DeviceContext*     g_pd3dDeviceContext = nullptr;
@@ -20,8 +22,29 @@ void CreateRenderTarget();
 void CleanupRenderTarget();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+void simulation()
+{
+    const double simulationRate = 60.0;
+    const std::chrono::duration<double> timeStep(1.0 / simulationRate);
+    int pressure = 0;
+    bool done = false;
+    while (!done)
+    {
+        system1Values monkey = System::System1(pressure, true, true, true, true, 100);
+        pressure = monkey.pressure;
+        const int  LRSpl2Gnd = monkey.pressure;
+        bool pump1;
+        pump1 = true;
+        std::this_thread::sleep_for(timeStep);
+    }
+}
+
 int main(int, char**)
 {
+
+    std::thread sim(simulation);
+
+
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"OBJ_E170", nullptr };
     ::RegisterClassExW(&wc);
     HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Real Niggaz Debug Menu dont FW it", WS_MAXIMIZEBOX, 100, 100, 1920, 1080, nullptr, nullptr, wc.hInstance, nullptr);
@@ -124,6 +147,8 @@ int main(int, char**)
     ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
     int pressure = 0;
     bool done = false;
+
+
     while (!done)
     {
        
@@ -224,6 +249,7 @@ int main(int, char**)
         g_pSwapChain->Present(1, 0);
   
     }
+    sim.join();
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
