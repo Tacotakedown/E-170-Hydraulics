@@ -14,7 +14,7 @@ from there we can get the time it takes for each induvudual actuator to extend a
 */
 
 
-system1 System::System1(int press, bool ElecPump1, bool EngPump1, bool ShutoffValve, bool PriorityValve, bool PTUValve, int FluidLevel)
+system1 System::System1(double press, bool ElecPump1, bool EngPump1, bool ShutoffValve, bool PriorityValve, bool PTUValve, int FluidLevel)
 {
 	system1Values values;
 	if (press < 3000)

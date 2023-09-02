@@ -158,12 +158,15 @@
     <ClInclude Include="dependencies\imgui\imstb_textedit.h" />
     <ClInclude Include="dependencies\imgui\imstb_truetype.h" />
     <ClInclude Include="globals.hpp" />
+    <ClInclude Include="hydraulicCylinder.h" />
+    <ClInclude Include="HydraulicMath.h" />
     <ClInclude Include="system.h" />
     <ClInclude Include="hydraulicFluid.h" />
     <ClInclude Include="HydraulicLine.h" />
     <ClInclude Include="HydraulicPump.h" />
     <ClInclude Include="hydraulicRes.h" />
     <ClInclude Include="tools.h" />
+    <ClInclude Include="unitConversion.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\imgui\imgui.cpp" />
@@ -173,13 +176,16 @@
     <ClCompile Include="dependencies\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="dependencies\imgui\imgui_tables.cpp" />
     <ClCompile Include="dependencies\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="hydraulicCylinder.cpp" />
     <ClCompile Include="hydraulicFluid.cpp" />
     <ClCompile Include="HydraulicLine.cpp" />
+    <ClCompile Include="HydraulicMath.cpp" />
     <ClCompile Include="HydraulicPump.cpp" />
     <ClCompile Include="hydraulicRes.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="system.cpp" />
     <ClCompile Include="tools.cpp" />
+    <ClCompile Include="unitConversion.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -31,6 +31,9 @@
     <Filter Include="Renderer">
       <UniqueIdentifier>{701d1ffe-602c-4a29-8ee6-77506e2a9973}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Hydraulics\Hydraulic Cylinder">
+      <UniqueIdentifier>{54d6094b-2fd5-4d45-abfe-fc2e5f4993b3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\imgui\imconfig.h">
@@ -78,6 +81,15 @@
     <ClInclude Include="dependencies\imgui\imgui_impl_dx11.h">
       <Filter>Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="HydraulicMath.h">
+      <Filter>Hydraulics</Filter>
+    </ClInclude>
+    <ClInclude Include="hydraulicCylinder.h">
+      <Filter>Hydraulics\Hydraulic Cylinder</Filter>
+    </ClInclude>
+    <ClInclude Include="unitConversion.h">
+      <Filter>tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -121,6 +133,15 @@
     </ClCompile>
     <ClCompile Include="dependencies\imgui\imgui_impl_dx11.cpp">
       <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="HydraulicMath.cpp">
+      <Filter>Hydraulics</Filter>
+    </ClCompile>
+    <ClCompile Include="hydraulicCylinder.cpp">
+      <Filter>Hydraulics\Hydraulic Cylinder</Filter>
+    </ClCompile>
+    <ClCompile Include="unitConversion.cpp">
+      <Filter>tools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

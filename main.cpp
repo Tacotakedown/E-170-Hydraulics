@@ -9,6 +9,8 @@
 #include <string>
 #include <thread>
 #include <chrono>
+#include <atomic>
+
 
 static ID3D11Device*            g_pd3dDevice = nullptr;
 static ID3D11DeviceContext*     g_pd3dDeviceContext = nullptr;
@@ -25,21 +27,42 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 /*
 globals to be acessed outside of simulation loop for render purposes
 */
-int pressure = 0;
+//int pressure = 0;
 bool simRunning = false;
+
+std::atomic<double> fps(0.0);
+std::atomic<int> pressure(0);
+std::atomic<system1Values>monkeyManager;
+static std::atomic<bool>ElecPump1(false);
 
 void simulation()
 {
-    const double simulationRate = 60.0;
+    const double simulationRate = 120;
     const std::chrono::duration<double> timeStep(1.0 / simulationRate);
  
+    int frameCount = 0;
+    auto startTime = std::chrono::steady_clock::now();
+
     while (!simRunning)
     {
-        system1Values monkey = System::System1(pressure, true, true, true, true, 100);
-        pressure = monkey.pressure;
+        system1Values monkey = System::System1(pressure, ElecPump1.load(std::memory_order_relaxed), true, true, true, true, 100);
+        monkeyManager.store(monkey, std::memory_order_relaxed);
+        pressure.store(monkey.pressure, std::memory_order_relaxed);
         const int  LRSpl2Gnd = monkey.pressure;
         bool pump1;
         pump1 = true;
+
+        frameCount++;
+        auto currentTime = std::chrono::steady_clock::now();
+        auto elapsedTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - startTime).count();
+
+        if (elapsedTime >= 1)
+        {
+            double currentSimulationRate = static_cast<double>(frameCount) / elapsedTime;
+            fps.store(currentSimulationRate, std::memory_order_relaxed);
+            frameCount = 0;
+            startTime = currentTime;
+        }
         std::this_thread::sleep_for(timeStep);
     }
 }
@@ -157,6 +180,9 @@ int main(int, char**)
     {
        
         MSG msg;
+        double currentSimRate = fps.load(std::memory_order_relaxed);
+        system1Values monkeySystemReturn = monkeyManager.load(std::memory_order_relaxed);
+        int pressureReturn = pressure.load(std::memory_order_relaxed);
         while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE))
         {
             ::TranslateMessage(&msg);
@@ -178,39 +204,34 @@ int main(int, char**)
         ImGui::NewFrame();
         ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
         ImGui::SetNextWindowSize({ 1920,1080 });
-        static bool ElecPump1;
-        system1Values monkey = System::System1(pressure,ElecPump1, true, true, true, true, 100);
-        pressure = monkey.pressure;
-        const int  LRSpl2Gnd = monkey.pressure;
-        bool pump1;
-        pump1 = ElecPump1;
+        
         ImGui::Begin("Real Niggas Debug Menu",nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove| ImGuiWindowFlags_NoCollapse| ImGuiWindowFlags_AlwaysAutoResize);
 
 
         ImGui::BeginChild("##Left", ImVec2(ImGui::GetContentRegionAvail().x / 3.0f, ImGui::GetContentRegionAvail().y / 1.1f));
-        ImGui::Text("PressureL: %i", pressure);
+        ImGui::Text("PressureL: %i", pressureReturn);
 
-        ImGui::PushStyleColor(ImGuiCol_Text, monkey.OutboardBrakes ? ImVec4(0, 255, 0, 255) : ImVec4(255, 0, 0, 255));
+        ImGui::PushStyleColor(ImGuiCol_Text, monkeySystemReturn.OutboardBrakes ? ImVec4(0, 255, 0, 255) : ImVec4(255, 0, 0, 255));
         ImGui::Text("OutboardBrakes");
         ImGui::PopStyleColor();
 
-        ImGui::PushStyleColor(ImGuiCol_Text, monkey.LR_3_4_MfSpoiler ? ImVec4(0, 255, 0, 255) : ImVec4(255, 0, 0, 255));
+        ImGui::PushStyleColor(ImGuiCol_Text, monkeySystemReturn.LR_3_4_MfSpoiler ? ImVec4(0, 255, 0, 255) : ImVec4(255, 0, 0, 255));
         ImGui::Text("LR_3_4_MfSpoiler");
         ImGui::PopStyleColor();
 
-        ImGui::PushStyleColor(ImGuiCol_Text, monkey.L_ThrustReverser ? ImVec4(0, 255, 0, 255) : ImVec4(255, 0, 0, 255));
+        ImGui::PushStyleColor(ImGuiCol_Text, monkeySystemReturn.L_ThrustReverser ? ImVec4(0, 255, 0, 255) : ImVec4(255, 0, 0, 255));
         ImGui::Text("L_Thrust Reverser");
         ImGui::PopStyleColor();
 
-        ImGui::PushStyleColor(ImGuiCol_Text, monkey.UpperRudder ? ImVec4(0, 255, 0, 255) : ImVec4(255, 0, 0, 255));
+        ImGui::PushStyleColor(ImGuiCol_Text, monkeySystemReturn.UpperRudder ? ImVec4(0, 255, 0, 255) : ImVec4(255, 0, 0, 255));
         ImGui::Text("Upper Rudder");
         ImGui::PopStyleColor();
 
-        ImGui::PushStyleColor(ImGuiCol_Text, monkey.L_OutboardElev ? ImVec4(0, 255, 0, 255) : ImVec4(255, 0, 0, 255));
+        ImGui::PushStyleColor(ImGuiCol_Text, monkeySystemReturn.L_OutboardElev ? ImVec4(0, 255, 0, 255) : ImVec4(255, 0, 0, 255));
         ImGui::Text("L_OutboardElevator");
         ImGui::PopStyleColor();
 
-        ImGui::PushStyleColor(ImGuiCol_Text, monkey.LR_2_GroundSpoilers? ImVec4(0, 255, 0, 255) :ImVec4(255,0,0,255));
+        ImGui::PushStyleColor(ImGuiCol_Text, monkeySystemReturn.LR_2_GroundSpoilers? ImVec4(0, 255, 0, 255) :ImVec4(255,0,0,255));
         ImGui::Text("LR_2_GroundSpoilers");
         ImGui::PopStyleColor();
 
@@ -223,7 +244,7 @@ int main(int, char**)
 
 
         ImGui::BeginChild("##Center", ImVec2(ImGui::GetContentRegionAvail().x / 2.0f, ImGui::GetContentRegionAvail().y/1.1f));
-        ImGui::Text("PressureC: %i", pressure);
+        ImGui::Text("PressureC: %i", pressureReturn);
         ImGui::EndChild();
         ImGui::SameLine();
         ImGui::PushStyleColor(ImGuiCol_Separator, ImColor(0, 0, 0, 200).Value);
@@ -233,13 +254,16 @@ int main(int, char**)
 
 
         ImGui::BeginChild("##Right", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y / 1.1f));
-        ImGui::Text("PressureR: %i", pressure);
-        ImGui::Checkbox("ElecPump 1", &ElecPump1);
-     
+        ImGui::Text("PressureR: %i", pressureReturn);
+        static bool ElecPump1Checkbox;
+        ImGui::Checkbox("ElecPump 1", &ElecPump1Checkbox);
+        ElecPump1.store(ElecPump1Checkbox, std::memory_order_relaxed);
         ImGui::EndChild();
         ImGui::Separator();
         ImGui::BeginChild("##Bottom", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
         ImGui::Text("FPS: %.1f", double(ImGui::GetIO().Framerate));
+
+        ImGui::Text("Sim Rate: %.1f", currentSimRate);
         ImGui::EndChild();
         
         ImGui::End();

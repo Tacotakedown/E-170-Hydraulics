@@ -18,7 +18,7 @@ public:
     class Direction //will determine direction of flow
     {
     public:
-    enum DirectionEnum {IN=0, OUT=1};
+    enum DirectionEnum;
     };
     class Cylinder //will determine cylinder volume
     {

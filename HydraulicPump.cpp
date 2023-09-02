@@ -15,7 +15,7 @@ double HydraulicPump::PumpWithFlowLimiter(double pressure,double RPM)
 {
 	if (pressure >= 3000)
 	{
-		return HydraulicPump::flowRate(RPM) * rand() % 100 / 100;
+		return HydraulicPump::flowRate(RPM) * (rand() % 100 / 100);
 	}
 	else
 	{
