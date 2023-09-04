@@ -10,6 +10,7 @@
 #include <thread>
 #include <chrono>
 #include <atomic>
+#include <iostream>
 
 
 static ID3D11Device*            g_pd3dDevice = nullptr;
@@ -24,53 +25,52 @@ void CreateRenderTarget();
 void CleanupRenderTarget();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+typedef std::atomic<int> atomicInt;
+typedef std::atomic<bool> atomicBool;
+typedef std::atomic<double> atomicDouble;
 /*
 globals to be acessed outside of simulation loop for render purposes
 */
 //int pressure = 0;
-bool simRunning = false;
 
-std::atomic<double> fps(0.0);
-std::atomic<int> pressure(0);
+atomicBool simRunning = false;
+atomicDouble pressure(0);
+static atomicBool mlgRetract(false);
+static atomicBool mlgExtend(false);
+std::atomic<int>fluidLevel(0);
+std::atomic<system3Values>system3atomic;
 std::atomic<system1Values>monkeyManager;
-static std::atomic<bool>ElecPump1(false);
+static atomicBool ElecPump1(false);
 
 void simulation()
 {
-    const double simulationRate = 120;
+    const double simulationRate = 120.0;
     const std::chrono::duration<double> timeStep(1.0 / simulationRate);
- 
-    int frameCount = 0;
-    auto startTime = std::chrono::steady_clock::now();
 
-    while (!simRunning)
+    while (1==1)
     {
-        system1Values monkey = System::System1(pressure, ElecPump1.load(std::memory_order_relaxed), true, true, true, true, 100);
+       
+         system1Values monkey = System::System1(pressure, ElecPump1.load(std::memory_order_relaxed), true, true, true, true, 100);
         monkeyManager.store(monkey, std::memory_order_relaxed);
         pressure.store(monkey.pressure, std::memory_order_relaxed);
-        const int  LRSpl2Gnd = monkey.pressure;
-        bool pump1;
-        pump1 = true;
+        
 
-        frameCount++;
-        auto currentTime = std::chrono::steady_clock::now();
-        auto elapsedTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - startTime).count();
+        const system3Values system3atomicPrewrite = system3atomic.load(std::memory_order_relaxed);
+        system3Values system3s = System::System3(monkey.pressure, system3atomicPrewrite.mlgCylinderExtension, system3atomicPrewrite.mlgCylinderVolume, mlgRetract.load(std::memory_order_relaxed), mlgExtend.load(std::memory_order_relaxed), true, true, true, true, true, system3atomicPrewrite.pressure);
+      
+        system3atomic.store(system3s, std::memory_order_relaxed);
 
-        if (elapsedTime >= 1)
-        {
-            double currentSimulationRate = static_cast<double>(frameCount) / elapsedTime;
-            fps.store(currentSimulationRate, std::memory_order_relaxed);
-            frameCount = 0;
-            startTime = currentTime;
-        }
         std::this_thread::sleep_for(timeStep);
+
     }
 }
+
+
 
 int main(int, char**)
 {
 
-    std::thread sim(simulation);
+    
 
 
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"OBJ_E170", nullptr };
@@ -176,13 +176,17 @@ int main(int, char**)
     bool done = false;
 
 
+    std::thread sim(simulation);
+
+
     while (!done)
     {
        
         MSG msg;
-        double currentSimRate = fps.load(std::memory_order_relaxed);
+       
+        const system3Values system3atomicPostwrite = system3atomic.load(std::memory_order_relaxed);
         system1Values monkeySystemReturn = monkeyManager.load(std::memory_order_relaxed);
-        int pressureReturn = pressure.load(std::memory_order_relaxed);
+       double pressureReturn = pressure.load(std::memory_order_relaxed);
         while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE))
         {
             ::TranslateMessage(&msg);
@@ -204,9 +208,9 @@ int main(int, char**)
         ImGui::NewFrame();
         ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
         ImGui::SetNextWindowSize({ 1920,1080 });
-        
+    
         ImGui::Begin("Real Niggas Debug Menu",nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove| ImGuiWindowFlags_NoCollapse| ImGuiWindowFlags_AlwaysAutoResize);
-
+        ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
         ImGui::BeginChild("##Left", ImVec2(ImGui::GetContentRegionAvail().x / 3.0f, ImGui::GetContentRegionAvail().y / 1.1f));
         ImGui::Text("PressureL: %i", pressureReturn);
@@ -244,7 +248,7 @@ int main(int, char**)
 
 
         ImGui::BeginChild("##Center", ImVec2(ImGui::GetContentRegionAvail().x / 2.0f, ImGui::GetContentRegionAvail().y/1.1f));
-        ImGui::Text("PressureC: %i", pressureReturn);
+        ImGui::Text("PressureC: %f", pressureReturn);
         ImGui::EndChild();
         ImGui::SameLine();
         ImGui::PushStyleColor(ImGuiCol_Separator, ImColor(0, 0, 0, 200).Value);
@@ -254,16 +258,26 @@ int main(int, char**)
 
 
         ImGui::BeginChild("##Right", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y / 1.1f));
-        ImGui::Text("PressureR: %i", pressureReturn);
+     
+        ImGui::Text("Cylinder extension: %f", system3atomicPostwrite.mlgCylinderExtension);
+
+   
+        draw_list->AddRectFilled(ImVec2(500, 550), ImVec2((500 + system3atomicPostwrite.mlgCylinderExtension * 500) , 500), ImColor(172, 178, 189));
+        draw_list->AddRectFilled(ImVec2(200, 490), ImVec2(500, 560), ImColor(81, 82, 84));
         static bool ElecPump1Checkbox;
+        static bool mlgRetractBox;
+        static bool mlgExtendBox;
         ImGui::Checkbox("ElecPump 1", &ElecPump1Checkbox);
+        ImGui::Checkbox("Extend Cylinder", &mlgExtendBox);
+        ImGui::Checkbox("Retract Cylinder", &mlgRetractBox);
+        mlgRetract.store(mlgRetractBox, std::memory_order_relaxed);
+        mlgExtend.store(mlgExtendBox, std::memory_order_relaxed);
         ElecPump1.store(ElecPump1Checkbox, std::memory_order_relaxed);
         ImGui::EndChild();
         ImGui::Separator();
         ImGui::BeginChild("##Bottom", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
         ImGui::Text("FPS: %.1f", double(ImGui::GetIO().Framerate));
 
-        ImGui::Text("Sim Rate: %.1f", currentSimRate);
         ImGui::EndChild();
         
         ImGui::End();

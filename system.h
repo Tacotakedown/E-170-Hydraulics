@@ -15,12 +15,12 @@ struct system1Values
 };
 struct system2Values
 {
-	int pressure;
+	double pressure;
 	bool R_OutboardElev, LowerRudder, LR_OutboardAilerons;
 };
 struct system3Values
 {
-	int pressure;
+	double pressure, mlgCylinderExtension, mlgActuatorExtension , mlgCylinderVolume;
 	bool LR_InboardElevator, LR_InboardAilerons, R_ThrustReverser, LR_5_MfSpoilers, LR_1_GroundSpoilers, InboardBrakes;
 };
 
@@ -33,7 +33,7 @@ class System
 public:
 	static system1 System1(double press,bool ElecPump1, bool EngPump1, bool ShutoffValve , bool PriorityValve, bool PTUValve, int FluidLevel);
 	static system2 System2(bool ElecPumpA, bool ElecPumpB, bool PumpUnloaderValve, bool FlowLimitValve, bool PriorityValve, int FluidLevel);
-	system3 System3(bool ElecPump2, bool EngPump2, bool ShutoffValve, bool PriorityValve, bool PriorityValve2, int FluidLevel);
+	static system3 System3(double pressure, double mlgCylinderExtension, double mlgCylinderVolume, bool mlgRetract, bool mlgExtend, bool ElecPump2, bool EngPump2, bool ShutoffValve, bool PriorityValve, bool PriorityValve2, int FluidLevel);
 
 private:
 

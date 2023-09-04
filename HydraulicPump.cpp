@@ -8,8 +8,8 @@ Meaning we need to simulate the flow limiter. We will hard code flow limiter to 
 
 double HydraulicPump::flowRate(double RPM)
 {
-	//convert the ratio of 19 gam/min at 4825 rpm to any given rpm
-	return 19 * RPM / 4825;
+	//convert the ratio of 4389 cIn/min at 4825 rpm to any given rpm
+	return 4389 * RPM / 4825;
 }
 double HydraulicPump::PumpWithFlowLimiter(double pressure,double RPM)
 {
