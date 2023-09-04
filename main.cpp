@@ -11,6 +11,7 @@
 #include <chrono>
 #include <atomic>
 #include <iostream>
+#include <cmath>
 
 
 static ID3D11Device*            g_pd3dDevice = nullptr;
@@ -40,6 +41,8 @@ static atomicBool mlgExtend(false);
 std::atomic<int>fluidLevel(0);
 std::atomic<system3Values>system3atomic;
 std::atomic<system1Values>monkeyManager;
+atomicInt rpm(0);
+atomicBool pumpFailed(false);
 static atomicBool ElecPump1(false);
 
 void simulation()
@@ -50,14 +53,35 @@ void simulation()
     while (1==1)
     {
        
-         system1Values monkey = System::System1(pressure, ElecPump1.load(std::memory_order_relaxed), true, true, true, true, 100);
+        system1Values monkey = System::System1(true,
+            pressure,
+            ElecPump1.load(std::memory_order_relaxed),
+            true,
+            true,
+            true,
+            true,
+            100);
+
         monkeyManager.store(monkey, std::memory_order_relaxed);
         pressure.store(monkey.pressure, std::memory_order_relaxed);
         
 
         const system3Values system3atomicPrewrite = system3atomic.load(std::memory_order_relaxed);
-        system3Values system3s = System::System3(monkey.pressure, system3atomicPrewrite.mlgCylinderExtension, system3atomicPrewrite.mlgCylinderVolume, mlgRetract.load(std::memory_order_relaxed), mlgExtend.load(std::memory_order_relaxed), true, true, true, true, true, system3atomicPrewrite.pressure);
-      
+        system3Values system3s = System::System3(pumpFailed.load(std::memory_order_relaxed),
+            monkey.pressure,
+            system3atomicPrewrite.mlgCylinderExtension,
+            system3atomicPrewrite.mlgCylinderVolume,
+            mlgRetract.load(std::memory_order_relaxed),
+            mlgExtend.load(std::memory_order_relaxed),
+            true,
+            true,
+            true,
+            true,
+            true,
+            system3atomicPrewrite.pressure);
+
+        rpm.store(system3s.rpm, std::memory_order_relaxed);
+        pumpFailed.store(system3s.pumpFailed, std::memory_order_relaxed);
         system3atomic.store(system3s, std::memory_order_relaxed);
 
         std::this_thread::sleep_for(timeStep);
@@ -213,7 +237,7 @@ int main(int, char**)
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
         ImGui::BeginChild("##Left", ImVec2(ImGui::GetContentRegionAvail().x / 3.0f, ImGui::GetContentRegionAvail().y / 1.1f));
-        ImGui::Text("PressureL: %i", pressureReturn);
+        ImGui::Text("PressureL: %f", pressureReturn);
 
         ImGui::PushStyleColor(ImGuiCol_Text, monkeySystemReturn.OutboardBrakes ? ImVec4(0, 255, 0, 255) : ImVec4(255, 0, 0, 255));
         ImGui::Text("OutboardBrakes");
@@ -248,7 +272,9 @@ int main(int, char**)
 
 
         ImGui::BeginChild("##Center", ImVec2(ImGui::GetContentRegionAvail().x / 2.0f, ImGui::GetContentRegionAvail().y/1.1f));
-        ImGui::Text("PressureC: %f", pressureReturn);
+
+        int roundedPressure = (int)pressureReturn + abs(((int)pressureReturn % 25)-25);
+        ImGui::Text("PressureRounded (displays): %i", roundedPressure);
         ImGui::EndChild();
         ImGui::SameLine();
         ImGui::PushStyleColor(ImGuiCol_Separator, ImColor(0, 0, 0, 200).Value);
@@ -262,14 +288,22 @@ int main(int, char**)
         ImGui::Text("Cylinder extension: %f", system3atomicPostwrite.mlgCylinderExtension);
 
    
-        draw_list->AddRectFilled(ImVec2(500, 550), ImVec2((500 + system3atomicPostwrite.mlgCylinderExtension * 500) , 500), ImColor(172, 178, 189));
-        draw_list->AddRectFilled(ImVec2(200, 490), ImVec2(500, 560), ImColor(81, 82, 84));
+        draw_list->AddRectFilled(ImVec2(500, 550), ImVec2((500 + system3atomicPostwrite.mlgCylinderExtension * 500) , 500), ImColor(192, 198, 209));
+        draw_list->AddRectFilled(ImVec2(00, 490), ImVec2(500, 560), ImColor(81, 82, 84));
+        draw_list->AddRectFilled(ImVec2(460, 480), ImVec2(500, 570), ImColor(172, 178, 189));
+        draw_list->AddRectFilled(ImVec2(00, 480), ImVec2(40, 570), ImColor(172, 178, 189));
         static bool ElecPump1Checkbox;
         static bool mlgRetractBox;
         static bool mlgExtendBox;
         ImGui::Checkbox("ElecPump 1", &ElecPump1Checkbox);
         ImGui::Checkbox("Extend Cylinder", &mlgExtendBox);
         ImGui::Checkbox("Retract Cylinder", &mlgRetractBox);
+        static int rpmSlider = 0;
+        ImGui::SliderInt("RPM of E-pump:", &rpmSlider, 0, 4000);
+        ImGui::PushStyleColor(ImGuiCol_Text, system3atomicPostwrite.limitSwitch ? ImVec4(0, 255, 0, 255) : ImVec4(255, 0, 0, 255));
+        ImGui::Text("Limit Switch");
+        ImGui::PopStyleColor();
+        rpm.store(rpmSlider, std::memory_order_relaxed);
         mlgRetract.store(mlgRetractBox, std::memory_order_relaxed);
         mlgExtend.store(mlgExtendBox, std::memory_order_relaxed);
         ElecPump1.store(ElecPump1Checkbox, std::memory_order_relaxed);

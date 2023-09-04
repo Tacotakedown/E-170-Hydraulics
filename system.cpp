@@ -1,6 +1,7 @@
 #include "globals.hpp"
 #include "system.h"
 #include <iostream>
+#include <conio.h>
 
 /*
 to do:
@@ -23,9 +24,12 @@ elec pumps in system 1 and 3 move 716.1 cubic inches/min
 
 
 
-system1 System::System1(double press, bool ElecPump1, bool EngPump1, bool ShutoffValve, bool PriorityValve, bool PTUValve, int FluidLevel)
+system1 System::System1(bool pumpFailed,double press, bool ElecPump1, bool EngPump1, bool ShutoffValve, bool PriorityValve, bool PTUValve, int FluidLevel)
 {
 	system1Values values;
+
+	int randomPressure = rand() % 50 + -50;
+
 	if (press < 3000)
 	{
 		if (ElecPump1)
@@ -34,14 +38,14 @@ system1 System::System1(double press, bool ElecPump1, bool EngPump1, bool Shutof
 		}
 		else
 		{
-			values.pressure = press -2;
+			values.pressure = press -10;
 		}
 	}
 	if (press >= 3000)
 	{
 		if (ElecPump1)
 		{
-			values.pressure = press;
+			values.pressure = press +randomPressure;
 		}
 		else
 		{
@@ -104,7 +108,7 @@ system2 System::System2(bool ElecPumpA, bool ElecPumpB, bool PumpUnloaderValve, 
 	
 	return values;
 }
-system3 System::System3(double pressure, double mlgCylinderExtension, double mlgCylinderVolume, bool mlgRetract, bool mlgExtend, bool ElecPump2, bool EngPump2, bool ShutoffValve, bool PriorityValve, bool PriorityValve2, int FluidLevel) {
+system3 System::System3(bool pumpFailed, double pressure, double mlgCylinderExtension, double mlgCylinderVolume, bool mlgRetract, bool mlgExtend, bool ElecPump2, bool EngPump2, bool ShutoffValve, bool PriorityValve, bool PriorityValve2, int FluidLevel) {
 
 	system3Values values3;
 
@@ -112,7 +116,7 @@ system3 System::System3(double pressure, double mlgCylinderExtension, double mlg
 
 
 	const double system2Capacity = 136; //cubicIn
-	const double acPumpFlowRate = 716.3; //cunicIn/min
+	double acPumpFlowRate = 716.3*(pressure/3000); //cunicIn/min
 	const double rpm = 4000;
 	const double timePerTick = 0.00027944444;
 	const double mlgCylinderRadius = 6;//inches
@@ -120,45 +124,48 @@ system3 System::System3(double pressure, double mlgCylinderExtension, double mlg
 	const double mlgActuatorRadius = 4;//inches
 	const double mlgActuatorTravel = 4;//inches
 	const double engPumpFlowRate = HydraulicPump::flowRate(rpm);
-	const double volumeIncrease = HydraulicMath::FlowRate::getVolume(acPumpFlowRate, timePerTick);
+	const int upperLimit = 50;
+	const int lowerLimit = 0;
+
 	bool actuatorState = true;//locked
 	bool mlgCylinderGate = false; //closed
 
-	double random;
+	double random = (double)(rand() % 12 + 8)/10;
 
-
-	random = (double)(rand() % 13 + 2)/100;
+	double volumeIncrease =  HydraulicMath::FlowRate::getVolume(acPumpFlowRate * random, timePerTick);
+	
 	//0.2001660
-
+	
 	if (mlgExtend);
 	{
+
+		values3.mlgCylinderVolume = mlgCylinderVolume + (volumeIncrease);
 		
-			values3.mlgCylinderVolume = mlgCylinderVolume + volumeIncrease + random;
-			if (values3.mlgCylinderVolume > 10)
-				values3.mlgCylinderVolume == 10;
-			if (values3.mlgCylinderVolume < 0)
-				values3.mlgCylinderVolume == 00;
-			values3.mlgCylinderExtension = HydraulicMath::Cylinder::getCylinderLength(mlgActuatorRadius, values3.mlgCylinderVolume);
-		
+		if (values3.mlgCylinderVolume > upperLimit)
+			values3.mlgCylinderVolume = upperLimit;
+		if (values3.mlgCylinderVolume < lowerLimit)
+			values3.mlgCylinderVolume = lowerLimit;
+		values3.mlgCylinderExtension = HydraulicMath::Cylinder::getCylinderLength(mlgActuatorRadius, values3.mlgCylinderVolume);
+	
 	}
+	
 	if (mlgRetract)
 	{
-
-		values3.mlgCylinderVolume = mlgCylinderVolume - volumeIncrease + random;
-		if (values3.mlgCylinderVolume > 10)
-			values3.mlgCylinderVolume == 10;
-		if (values3.mlgCylinderVolume < 0)
-			values3.mlgCylinderVolume == 00;
+		values3.mlgCylinderVolume = mlgCylinderVolume - (volumeIncrease);
+		if (values3.mlgCylinderVolume > upperLimit)
+			values3.mlgCylinderVolume = upperLimit;
+		if (values3.mlgCylinderVolume < lowerLimit)
+			values3.mlgCylinderVolume = lowerLimit;
 		values3.mlgCylinderExtension = HydraulicMath::Cylinder::getCylinderLength(mlgActuatorRadius, values3.mlgCylinderVolume);
 	}
 	if (pressure < 1500) {
 		if (mlgCylinderExtension > 0)
 		{
-			values3.mlgCylinderVolume = mlgCylinderVolume - volumeIncrease + random;
-			if (values3.mlgCylinderVolume > 10)
-				values3.mlgCylinderVolume == 10;
-			if (values3.mlgCylinderVolume < 0)
-				values3.mlgCylinderVolume == 00;
+			values3.mlgCylinderVolume = mlgCylinderVolume - (volumeIncrease);
+			if (values3.mlgCylinderVolume > upperLimit)
+				values3.mlgCylinderVolume = upperLimit;
+			if (values3.mlgCylinderVolume < lowerLimit)
+				values3.mlgCylinderVolume = lowerLimit;
 			values3.mlgCylinderExtension = HydraulicMath::Cylinder::getCylinderLength(mlgActuatorRadius, values3.mlgCylinderVolume);
 		}
 		else{
@@ -166,7 +173,6 @@ system3 System::System3(double pressure, double mlgCylinderExtension, double mlg
 			values3.mlgCylinderExtension = mlgCylinderExtension;
 		}
 	}
-	
 	
 	if(!mlgExtend&&!mlgRetract) {
 		values3.mlgCylinderVolume = mlgCylinderVolume;
@@ -176,10 +182,16 @@ system3 System::System3(double pressure, double mlgCylinderExtension, double mlg
 		values3.mlgCylinderVolume = mlgCylinderVolume;
 		values3.mlgCylinderExtension = mlgCylinderExtension;
 	}
-
+	if (values3.mlgCylinderVolume >= upperLimit || values3.mlgCylinderVolume <= lowerLimit)
+	{
+		values3.limitSwitch = true;
+	}
+	else {
+		values3.limitSwitch = false;
+	}
+		
 
 	
 
-	values3.pressure = FluidLevel + 1;
 	return values3;
 }

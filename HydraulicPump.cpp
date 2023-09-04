@@ -22,3 +22,8 @@ double HydraulicPump::PumpWithFlowLimiter(double pressure,double RPM)
 		return HydraulicPump::flowRate(RPM);
 	}
 }
+
+double HydraulicPump::ElecFlowRate(int rpm)
+{
+	return 716 * rpm / 4000;
+}
